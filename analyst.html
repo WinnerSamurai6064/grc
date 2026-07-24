@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Green Recruiters - Analytics</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F7F3EC;
+    --surface: #FFFFFF;
+    --text-primary: #2A2A26;
+    --text-secondary: #6B6B63;
+    --green: #2E7D4F;
+    --green-dark: #1F5C39;
+    --green-light: #E6F0EA;
+    --border: #DDD8CC;
+    --radius: 14px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text-primary);
+    display: flex;
+    min-height: 100vh;
+  }
+
+  .sidebar {
+    width: 220px;
+    flex-shrink: 0;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 28px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .sidebar-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--green-dark);
+    padding: 0 12px 20px;
+  }
+
+  .nav-item {
+    padding: 12px 14px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    text-decoration: none;
+    display: block;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+
+  .nav-item:hover {
+    background: var(--green-light);
+    color: var(--text-primary);
+  }
+
+  .nav-item.active {
+    background: var(--green);
+    color: white;
+  }
+
+  .nav-spacer { flex: 1; }
+
+  .logout-btn {
+    padding: 12px 14px;
+    font-size: 14px;
+    color: #B3261E;
+    cursor: pointer;
+    border-radius: 10px;
+  }
+
+  .logout-btn:hover {
+    background: #FBEAE9;
+  }
+
+  .main {
+    flex: 1;
+    padding: 36px 44px;
+    max-width: 1100px;
+  }
+
+  .page-title {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+
+  .page-subtitle {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-bottom: 24px;
+  }
+
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+  }
+
+  .stat-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 8px;
+  }
+
+  .stat-value {
+    font-size: 30px;
+    font-weight: 700;
+    color: var(--green-dark);
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+
+  .card-title {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  .card-subtitle {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 18px;
+  }
+
+  .range-select {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    padding: 8px 12px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    background: var(--bg);
+    color: var(--text-primary);
+    outline: none;
+    margin-bottom: 18px;
+  }
+
+  .chart-wrapper {
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  canvas {
+    display: block;
+  }
+
+  .breakdown-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+
+  .breakdown-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 14px;
+  }
+
+  .breakdown-bar-bg {
+    flex: 1;
+    height: 8px;
+    background: var(--bg);
+    border-radius: 4px;
+    margin: 0 12px;
+    overflow: hidden;
+  }
+
+  .breakdown-bar-fill {
+    height: 100%;
+    background: var(--green);
+    border-radius: 4px;
+  }
+
+  .empty-state {
+    color: var(--text-secondary);
+    font-size: 14px;
+    padding: 20px 0;
+  }
+
+  @media (max-width: 780px) {
+    .breakdown-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="sidebar-title">Green Recruiters</div>
+  <a class="nav-item" href="/cms">Applications</a>
+  <a class="nav-item" href="/cms">Documents</a>
+  <a class="nav-item" href="/cms">Site Settings</a>
+  <a class="nav-item" href="/cms">Jobs</a>
+  <a class="nav-item" href="/cms">Email</a>
+  <a class="nav-item active" href="/analyst">Analytics</a>
+  <div class="nav-spacer"></div>
+  <div class="logout-btn" id="logoutBtn">Log Out</div>
+</div>
+
+<div class="main">
+  <div class="page-title">Traffic &amp; Applications</div>
+  <div class="page-subtitle">Real visit and submission data pulled directly from the database.</div>
+
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="stat-label">Total Page Visits</div>
+      <div class="stat-value" id="statTotalVisits">-</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Total Applications</div>
+      <div class="stat-value" id="statTotalApplications">-</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Home Page Visits</div>
+      <div class="stat-value" id="statHomeVisits">-</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Application Page Visits</div>
+      <div class="stat-value" id="statApplyVisits">-</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Visits Over Time</div>
+    <div class="card-subtitle">Daily page views across tracked pages.</div>
+    <select class="range-select" id="rangeSelect">
+      <option value="7">Last 7 days</option>
+      <option value="30" selected>Last 30 days</option>
+      <option value="90">Last 90 days</option>
+    </select>
+    <div class="chart-wrapper">
+      <canvas id="visitsChart" height="220"></canvas>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Applications Submitted Over Time</div>
+    <div class="card-subtitle">Daily application submissions for the same period.</div>
+    <div class="chart-wrapper">
+      <canvas id="applicationsChart" height="220"></canvas>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Breakdown</div>
+    <div class="card-subtitle">Visits by page and applications by status.</div>
+    <div class="breakdown-grid">
+      <div>
+        <div style="font-size:13px; font-weight:600; margin-bottom:8px;">Visits by Page</div>
+        <div id="visitsByPath"></div>
+      </div>
+      <div>
+        <div style="font-size:13px; font-weight:600; margin-bottom:8px;">Applications by Status</div>
+        <div id="applicationsByStatus"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  const API_BASE = '';
+  const token = sessionStorage.getItem('gr_session_token');
+
+  if (!token) {
+    window.location.href = '/admin';
+    return;
+  }
+
+  function authHeaders(extra) {
+    return Object.assign({ 'Authorization': `Bearer ${token}` }, extra || {});
+  }
+
+  async function apiFetch(path, options = {}) {
+    const res = await fetch(`${API_BASE}${path}`, {
+      ...options,
+      headers: authHeaders(options.headers),
+    });
+    if (res.status === 401) {
+      sessionStorage.removeItem('gr_session_token');
+      window.location.href = '/admin';
+      throw new Error('Session expired.');
+    }
+    return res;
+  }
+
+  document.getElementById('logoutBtn').addEventListener('click', () => {
+    sessionStorage.removeItem('gr_session_token');
+    window.location.href = '/admin';
+  });
+
+  function escapeHtml(value) {
+    if (value === null || value === undefined) return '';
+    const div = document.createElement('div');
+    div.textContent = String(value);
+    return div.innerHTML;
+  }
+
+  // ---------- Overview ----------
+  async function loadOverview() {
+    const res = await apiFetch('/api/cms/analytics/overview');
+    const data = await res.json();
+
+    document.getElementById('statTotalVisits').textContent = data.total_visits;
+    document.getElementById('statTotalApplications').textContent = data.total_applications;
+
+    const homeRow = data.visits_by_path.find(row => row.path === '/');
+    const applyRow = data.visits_by_path.find(row => row.path === '/apply');
+    document.getElementById('statHomeVisits').textContent = homeRow ? homeRow.count : 0;
+    document.getElementById('statApplyVisits').textContent = applyRow ? applyRow.count : 0;
+
+    renderBreakdown('visitsByPath', data.visits_by_path, 'path', 'count');
+    renderBreakdown('applicationsByStatus', data.applications_by_status, 'status', 'count');
+  }
+
+  function renderBreakdown(containerId, rows, labelKey, valueKey) {
+    const container = document.getElementById(containerId);
+    container.innerHTML = '';
+
+    if (!rows || rows.length === 0) {
+      container.innerHTML = '<div class="empty-state">No data yet.</div>';
+      return;
+    }
+
+    const maxValue = Math.max(...rows.map(r => r[valueKey]));
+
+    rows.forEach(row => {
+      const pct = maxValue > 0 ? (row[valueKey] / maxValue) * 100 : 0;
+      const div = document.createElement('div');
+      div.className = 'breakdown-row';
+      div.innerHTML = `
+        <span>${escapeHtml(row[labelKey])}</span>
+        <div class="breakdown-bar-bg"><div class="breakdown-bar-fill" style="width:${pct}%;"></div></div>
+        <span>${row[valueKey]}</span>
+      `;
+      container.appendChild(div);
+    });
+  }
+
+  // ---------- Time series charts (simple vanilla canvas bar charts) ----------
+  function drawBarChart(canvasId, labels, values, barColor) {
+    const canvas = document.getElementById(canvasId);
+    const ctx = canvas.getContext('2d');
+
+    const barWidth = 28;
+    const gap = 14;
+    const chartHeight = 180;
+    const paddingBottom = 30;
+    const paddingTop = 10;
+
+    const width = Math.max(labels.length * (barWidth + gap) + gap, canvas.parentElement.clientWidth);
+    canvas.width = width;
+    canvas.height = chartHeight + paddingBottom + paddingTop;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const maxValue = Math.max(...values, 1);
+
+    labels.forEach((label, i) => {
+      const value = values[i];
+      const barHeight = (value / maxValue) * chartHeight;
+      const x = gap + i * (barWidth + gap);
+      const y = paddingTop + (chartHeight - barHeight);
+
+      ctx.fillStyle = barColor;
+      ctx.fillRect(x, y, barWidth, barHeight);
+
+      ctx.fillStyle = '#6B6B63';
+      ctx.font = '11px Inter, sans-serif';
+      ctx.textAlign = 'center';
+
+      if (value > 0) {
+        ctx.fillText(value, x + barWidth / 2, y - 4);
+      }
+
+      const shortLabel = label.slice(5); // MM-DD
+      ctx.save();
+      ctx.translate(x + barWidth / 2, paddingTop + chartHeight + 16);
+      ctx.rotate(-Math.PI / 4);
+      ctx.textAlign = 'right';
+      ctx.fillText(shortLabel, 0, 0);
+      ctx.restore();
+    });
+  }
+
+  function fillDateRange(days, rows, dayKey) {
+    const rowMap = new Map(rows.map(r => [r[dayKey], parseInt(r.count)]));
+    const labels = [];
+    const values = [];
+
+    for (let i = days - 1; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const iso = d.toISOString().slice(0, 10);
+      labels.push(iso);
+      values.push(rowMap.get(iso) || 0);
+    }
+
+    return { labels, values };
+  }
+
+  async function loadTimeseries(days) {
+    const res = await apiFetch(`/api/cms/analytics/timeseries?days=${days}`);
+    const data = await res.json();
+
+    const visits = fillDateRange(days, data.visits_by_day, 'day');
+    const applications = fillDateRange(days, data.applications_by_day, 'day');
+
+    drawBarChart('visitsChart', visits.labels, visits.values, '#2E7D4F');
+    drawBarChart('applicationsChart', applications.labels, applications.values, '#1F5C39');
+  }
+
+  document.getElementById('rangeSelect').addEventListener('change', (e) => {
+    loadTimeseries(parseInt(e.target.value));
+  });
+
+  // ---------- Init ----------
+  loadOverview();
+  loadTimeseries(30);
+
+  window.addEventListener('resize', () => {
+    loadTimeseries(parseInt(document.getElementById('rangeSelect').value));
+  });
+})();
+</script>
+
+</body>
+</html>

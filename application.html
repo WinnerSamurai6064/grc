@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Green Recruiters - Apply</title>
+<link rel="icon" id="favicon" href="">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F7F3EC;
+    --surface: #FFFFFF;
+    --text-primary: #2A2A26;
+    --text-secondary: #6B6B63;
+    --green: #2E7D4F;
+    --green-dark: #1F5C39;
+    --green-light: #E6F0EA;
+    --border: #DDD8CC;
+    --error: #B3261E;
+    --radius: 14px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    height: 100%;
+    overflow: hidden;
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .app-shell {
+    width: 100%;
+    max-width: 560px;
+    height: 100%;
+    max-height: 800px;
+    display: flex;
+    flex-direction: column;
+    padding: 32px;
+  }
+
+  .hero {
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-bottom: 24px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    flex-shrink: 0;
+    transition: opacity 0.35s ease, max-height 0.35s ease, margin 0.35s ease;
+  }
+
+  .hero img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    display: block;
+    background: var(--green-light);
+  }
+
+  .hero.collapsed {
+    opacity: 0;
+    max-height: 0;
+    margin-bottom: 0;
+    border: none;
+    pointer-events: none;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 36px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+
+  .site-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--green-dark);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+  }
+
+  .heading {
+    font-size: 26px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    line-height: 1.25;
+  }
+
+  .subtitle {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-bottom: 28px;
+  }
+
+  .step-track {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+  }
+
+  .step-dot {
+    height: 4px;
+    flex: 1;
+    background: var(--border);
+    border-radius: 4px;
+    transition: background 0.3s ease;
+  }
+
+  .step-dot.active,
+  .step-dot.done {
+    background: var(--green);
+  }
+
+  .section {
+    display: none;
+    flex-direction: column;
+    gap: 18px;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding-right: 4px;
+  }
+
+  .section.visible {
+    display: flex;
+  }
+
+  .field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .field-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .field-row {
+    display: flex;
+    gap: 10px;
+  }
+
+  input, select {
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    padding: 13px 16px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    background: var(--bg);
+    color: var(--text-primary);
+    outline: none;
+    width: 100%;
+    transition: border-color 0.2s ease;
+  }
+
+  input:focus, select:focus {
+    border-color: var(--green);
+  }
+
+  input.invalid {
+    border-color: var(--error);
+  }
+
+  select.code-select {
+    width: 110px;
+    flex-shrink: 0;
+  }
+
+  .error-text {
+    font-size: 12px;
+    color: var(--error);
+    min-height: 14px;
+  }
+
+  .optional-tag {
+    font-weight: 400;
+    text-transform: none;
+    color: var(--text-secondary);
+    letter-spacing: 0;
+  }
+
+  .upload-box {
+    border: 2px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 32px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s ease, background 0.2s ease;
+  }
+
+  .upload-box:hover {
+    border-color: var(--green);
+    background: var(--green-light);
+  }
+
+  .upload-box.has-file {
+    border-color: var(--green);
+    background: var(--green-light);
+  }
+
+  .upload-title {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .upload-hint {
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+
+  .footer-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+    flex-shrink: 0;
+  }
+
+  .btn {
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    padding: 14px 28px;
+    border-radius: 999px;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s ease, opacity 0.2s ease, transform 0.1s ease;
+  }
+
+  .btn-primary {
+    background: var(--green);
+    color: white;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(4px);
+  }
+
+  .btn-primary.enabled {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+
+  .btn-primary:hover.enabled {
+    background: var(--green-dark);
+  }
+
+  .btn-text {
+    background: none;
+    color: var(--text-secondary);
+    padding: 14px 10px;
+  }
+
+  .btn-text:hover {
+    color: var(--text-primary);
+  }
+
+  .spacer { flex: 1; }
+
+  /* Loading / success overlay */
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .overlay.visible {
+    display: flex;
+  }
+
+  .spinner {
+    width: 42px;
+    height: 42px;
+    border: 4px solid var(--border);
+    border-top-color: var(--green);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .success-check {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: var(--green-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .success-check svg {
+    width: 32px;
+    height: 32px;
+  }
+
+  .overlay-text {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .overlay-subtext {
+    font-size: 14px;
+    color: var(--text-secondary);
+  }
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+  <div class="hero" id="hero">
+    <img id="heroImage" src="" alt="">
+  </div>
+
+  <div class="card">
+    <div class="site-title" id="siteTitle">Green Recruiters</div>
+    <div class="heading" id="heroHeading">Build Your Career With Confidence</div>
+    <div class="subtitle" id="heroSubtitle">Submit your application below.</div>
+
+    <div class="step-track">
+      <div class="step-dot active" data-step="1"></div>
+      <div class="step-dot" data-step="2"></div>
+      <div class="step-dot" data-step="3"></div>
+    </div>
+
+    <form id="applicationForm">
+
+      <!-- Section 1 -->
+      <div class="section visible" data-section="1">
+        <div class="field-group">
+          <label class="field-label">Full Name</label>
+          <input type="text" id="fullName" required autocomplete="name">
+          <div class="error-text" id="err-fullName"></div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Primary Email</label>
+          <input type="email" id="primaryEmail" required autocomplete="email">
+          <div class="error-text" id="err-primaryEmail"></div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Secondary Email <span class="optional-tag">(optional)</span></label>
+          <input type="email" id="secondaryEmail">
+          <div class="error-text" id="err-secondaryEmail"></div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Phone Number</label>
+          <div class="field-row">
+            <select id="phoneCountryCode" class="code-select"></select>
+            <input type="tel" id="phoneNumber" required>
+          </div>
+          <div class="error-text" id="err-phoneNumber"></div>
+        </div>
+      </div>
+
+      <!-- Section 2 -->
+      <div class="section" data-section="2">
+        <div class="field-group">
+          <label class="field-label">Country of Residence</label>
+          <select id="residenceCountry" required></select>
+          <div class="error-text" id="err-residenceCountry"></div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Nationality</label>
+          <select id="nationality" required></select>
+          <div class="error-text" id="err-nationality"></div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Position Applying For</label>
+          <select id="applyingFor" required></select>
+          <div class="error-text" id="err-applyingFor"></div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">LinkedIn Profile URL</label>
+          <input type="url" id="linkedinUrl" required placeholder="https://linkedin.com/in/...">
+          <div class="error-text" id="err-linkedinUrl"></div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Telegram <span class="optional-tag">(recommended, optional)</span></label>
+          <div class="field-row">
+            <select id="telegramCountryCode" class="code-select"></select>
+            <input type="tel" id="telegramNumber">
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 3 -->
+      <div class="section" data-section="3">
+        <div class="field-group">
+          <label class="field-label">Resume / CV</label>
+          <div class="upload-box" id="uploadBox">
+            <div class="upload-title" id="uploadTitle">Click to upload your resume</div>
+            <div class="upload-hint">PDF, DOC or DOCX · Max 5 MB</div>
+          </div>
+          <input type="file" id="resumeInput" accept=".pdf,.doc,.docx" style="display:none;">
+          <div class="error-text" id="err-resume"></div>
+        </div>
+      </div>
+
+      <div class="footer-actions">
+        <button type="button" class="btn btn-text" id="backBtn" style="visibility:hidden;">Back</button>
+        <div class="spacer"></div>
+        <button type="button" class="btn btn-primary" id="nextBtn">Next</button>
+        <button type="button" class="btn btn-primary" id="submitBtn" style="display:none;">Submit Application</button>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<div class="overlay" id="loadingOverlay">
+  <div class="spinner"></div>
+  <div class="overlay-text">Submitting your application...</div>
+</div>
+
+<div class="overlay" id="successOverlay">
+  <div class="success-check">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#2E7D4F" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="20 6 9 17 4 12"></polyline>
+    </svg>
+  </div>
+  <div class="overlay-text">Application submitted successfully.</div>
+  <div class="overlay-subtext">Thank you for applying to Green Recruiters.</div>
+</div>
+
+<script>
+(function () {
+  const API_BASE = '';
+
+  const COUNTRY_CODES = [
+    ["+1","US"], ["+44","UK"], ["+91","IN"], ["+61","AU"], ["+33","FR"],
+    ["+49","DE"], ["+81","JP"], ["+86","CN"], ["+7","RU"], ["+27","ZA"],
+    ["+234","NG"], ["+254","KE"], ["+971","AE"], ["+966","SA"], ["+92","PK"],
+    ["+880","BD"], ["+63","PH"], ["+62","ID"], ["+84","VN"], ["+82","KR"],
+    ["+55","BR"], ["+52","MX"], ["+34","ES"], ["+39","IT"], ["+31","NL"],
+    ["+46","SE"], ["+41","CH"], ["+90","TR"], ["+20","EG"], ["+212","MA"]
+  ];
+
+  const COUNTRIES = [
+    "United States","United Kingdom","Canada","Australia","India","Germany","France",
+    "Spain","Italy","Netherlands","Sweden","Switzerland","Nigeria","Kenya","South Africa",
+    "United Arab Emirates","Saudi Arabia","Pakistan","Bangladesh","Philippines","Indonesia",
+    "Vietnam","South Korea","Japan","China","Brazil","Mexico","Turkey","Egypt","Morocco",
+    "Russia","Other"
+  ];
+
+  let currentStep = 1;
+  const totalSteps = 3;
+  let resumeFile = null;
+
+  function populateSelect(selectEl, options, formatFn) {
+    selectEl.innerHTML = '';
+    options.forEach(opt => {
+      const o = document.createElement('option');
+      const [value, label] = formatFn ? formatFn(opt) : [opt, opt];
+      o.value = value;
+      o.textContent = label;
+      selectEl.appendChild(o);
+    });
+  }
+
+  populateSelect(document.getElementById('phoneCountryCode'), COUNTRY_CODES, c => [c[0], `${c[0]} ${c[1]}`]);
+  populateSelect(document.getElementById('telegramCountryCode'), COUNTRY_CODES, c => [c[0], `${c[0]} ${c[1]}`]);
+  populateSelect(document.getElementById('residenceCountry'), COUNTRIES);
+  populateSelect(document.getElementById('nationality'), COUNTRIES);
+
+  async function loadSettings() {
+    try {
+      const res = await fetch(`${API_BASE}/api/public/settings`);
+      const settings = await res.json();
+
+      if (settings.site_title) {
+        document.getElementById('siteTitle').textContent = settings.site_title;
+        document.title = `${settings.site_title} - Apply`;
+      }
+      if (settings.hero_heading) document.getElementById('heroHeading').textContent = settings.hero_heading;
+      if (settings.hero_subtitle) document.getElementById('heroSubtitle').textContent = settings.hero_subtitle;
+      if (settings.hero_image) {
+        document.getElementById('heroImage').src = settings.hero_image;
+      } else {
+        document.getElementById('hero').classList.add('collapsed');
+      }
+      if (settings.favicon) document.getElementById('favicon').href = settings.favicon;
+    } catch (e) {
+      document.getElementById('hero').classList.add('collapsed');
+    }
+  }
+
+  async function loadJobs() {
+    try {
+      const res = await fetch(`${API_BASE}/api/public/jobs`);
+      const jobs = await res.json();
+      populateSelect(document.getElementById('applyingFor'), jobs);
+    } catch (e) {
+      populateSelect(document.getElementById('applyingFor'), ["General Application"]);
+    }
+  }
+
+  loadSettings();
+  loadJobs();
+
+  function showError(fieldId, message) {
+    const errEl = document.getElementById(`err-${fieldId}`);
+    const inputEl = document.getElementById(fieldId);
+    if (errEl) errEl.textContent = message;
+    if (inputEl) inputEl.classList.toggle('invalid', !!message);
+  }
+
+  function isValidEmail(value) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+  }
+
+  function isValidUrl(value) {
+    try {
+      const u = new URL(value);
+      return u.protocol === 'http:' || u.protocol === 'https:';
+    } catch {
+      return false;
+    }
+  }
+
+  function validateStep1() {
+    let valid = true;
+    const fullName = document.getElementById('fullName').value.trim();
+    const primaryEmail = document.getElementById('primaryEmail').value.trim();
+    const secondaryEmail = document.getElementById('secondaryEmail').value.trim();
+    const phoneNumber = document.getElementById('phoneNumber').value.trim();
+
+    showError('fullName', fullName ? '' : 'Name is required.');
+    if (!fullName) valid = false;
+
+    if (!primaryEmail) { showError('primaryEmail', 'Email is required.'); valid = false; }
+    else if (!isValidEmail(primaryEmail)) { showError('primaryEmail', 'Enter a valid email.'); valid = false; }
+    else showError('primaryEmail', '');
+
+    if (secondaryEmail && !isValidEmail(secondaryEmail)) { showError('secondaryEmail', 'Enter a valid email.'); valid = false; }
+    else showError('secondaryEmail', '');
+
+    if (!phoneNumber || phoneNumber.length < 4) { showError('phoneNumber', 'Enter a valid phone number.'); valid = false; }
+    else showError('phoneNumber', '');
+
+    return valid;
+  }
+
+  function validateStep2() {
+    let valid = true;
+    const linkedinUrl = document.getElementById('linkedinUrl').value.trim();
+
+    if (!linkedinUrl) { showError('linkedinUrl', 'LinkedIn profile is required.'); valid = false; }
+    else if (!isValidUrl(linkedinUrl)) { showError('linkedinUrl', 'Enter a valid URL.'); valid = false; }
+    else showError('linkedinUrl', '');
+
+    return valid;
+  }
+
+  function validateStep3() {
+    if (!resumeFile) {
+      showError('resume', 'Please upload your resume.');
+      return false;
+    }
+    showError('resume', '');
+    return true;
+  }
+
+  function currentStepValid() {
+    if (currentStep === 1) return validateStep1();
+    if (currentStep === 2) return validateStep2();
+    if (currentStep === 3) return validateStep3();
+    return false;
+  }
+
+  function updateNextButtonState() {
+    const nextBtn = document.getElementById('nextBtn');
+    nextBtn.classList.toggle('enabled', currentStepValid());
+  }
+
+  function renderStep() {
+    document.querySelectorAll('.section').forEach(s => {
+      s.classList.toggle('visible', parseInt(s.dataset.section) === currentStep);
+    });
+
+    document.querySelectorAll('.step-dot').forEach(dot => {
+      const step = parseInt(dot.dataset.step);
+      dot.classList.toggle('active', step === currentStep);
+      dot.classList.toggle('done', step < currentStep);
+    });
+
+    document.getElementById('backBtn').style.visibility = currentStep === 1 ? 'hidden' : 'visible';
+
+    const isLastStep = currentStep === totalSteps;
+    document.getElementById('nextBtn').style.display = isLastStep ? 'none' : 'block';
+    document.getElementById('submitBtn').style.display = isLastStep ? 'block' : 'none';
+
+    if (currentStep > 1) {
+      document.getElementById('hero').classList.add('collapsed');
+    }
+
+    updateNextButtonState();
+  }
+
+  document.getElementById('applicationForm').addEventListener('input', updateNextButtonState);
+  document.getElementById('applicationForm').addEventListener('change', updateNextButtonState);
+
+  document.getElementById('nextBtn').addEventListener('click', () => {
+    if (!currentStepValid()) return;
+    if (currentStep < totalSteps) {
+      currentStep += 1;
+      renderStep();
+    }
+  });
+
+  document.getElementById('backBtn').addEventListener('click', () => {
+    if (currentStep > 1) {
+      currentStep -= 1;
+      renderStep();
+    }
+  });
+
+  const uploadBox = document.getElementById('uploadBox');
+  const resumeInput = document.getElementById('resumeInput');
+  const uploadTitle = document.getElementById('uploadTitle');
+
+  uploadBox.addEventListener('click', () => resumeInput.click());
+
+  resumeInput.addEventListener('change', () => {
+    const file = resumeInput.files[0];
+    if (!file) return;
+
+    const allowedExt = ['.pdf', '.doc', '.docx'];
+    const ext = '.' + file.name.split('.').pop().toLowerCase();
+    const maxSize = 5 * 1024 * 1024;
+
+    if (!allowedExt.includes(ext)) {
+      showError('resume', 'Only PDF, DOC, or DOCX files are accepted.');
+      resumeFile = null;
+      resumeInput.value = '';
+      uploadBox.classList.remove('has-file');
+      uploadTitle.textContent = 'Click to upload your resume';
+      updateNextButtonState();
+      return;
+    }
+
+    if (file.size > maxSize) {
+      showError('resume', 'File exceeds the 5 MB limit.');
+      resumeFile = null;
+      resumeInput.value = '';
+      uploadBox.classList.remove('has-file');
+      uploadTitle.textContent = 'Click to upload your resume';
+      updateNextButtonState();
+      return;
+    }
+
+    resumeFile = file;
+    showError('resume', '');
+    uploadBox.classList.add('has-file');
+    uploadTitle.textContent = file.name;
+    updateNextButtonState();
+  });
+
+  document.getElementById('submitBtn').addEventListener('click', async () => {
+    if (!validateStep3()) return;
+
+    document.getElementById('loadingOverlay').classList.add('visible');
+
+    const formData = new FormData();
+    formData.append('full_name', document.getElementById('fullName').value.trim());
+    formData.append('primary_email', document.getElementById('primaryEmail').value.trim());
+    formData.append('secondary_email', document.getElementById('secondaryEmail').value.trim());
+    formData.append('phone_country_code', document.getElementById('phoneCountryCode').value);
+    formData.append('phone_number', document.getElementById('phoneNumber').value.trim());
+    formData.append('residence_country', document.getElementById('residenceCountry').value);
+    formData.append('nationality', document.getElementById('nationality').value);
+    formData.append('applying_for', document.getElementById('applyingFor').value);
+    formData.append('linkedin_url', document.getElementById('linkedinUrl').value.trim());
+    formData.append('telegram_country_code', document.getElementById('telegramCountryCode').value);
+    formData.append('telegram_number', document.getElementById('telegramNumber').value.trim());
+    formData.append('resume', resumeFile);
+
+    const minDelay = new Promise(resolve => setTimeout(resolve, 1000));
+
+    try {
+      const [res] = await Promise.all([
+        fetch(`${API_BASE}/api/public/apply`, { method: 'POST', body: formData }),
+        minDelay
+      ]);
+
+      if (!res.ok) {
+        const errBody = await res.json().catch(() => ({}));
+        throw new Error(errBody.detail || 'Submission failed.');
+      }
+
+      document.getElementById('loadingOverlay').classList.remove('visible');
+      document.getElementById('successOverlay').classList.add('visible');
+    } catch (err) {
+      await minDelay;
+      document.getElementById('loadingOverlay').classList.remove('visible');
+      alert(err.message || 'Something went wrong. Please try again.');
+    }
+  });
+
+  renderStep();
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Green Recruiters - Admin Login</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F7F3EC;
+    --surface: #FFFFFF;
+    --text-primary: #2A2A26;
+    --text-secondary: #6B6B63;
+    --green: #2E7D4F;
+    --green-dark: #1F5C39;
+    --green-light: #E6F0EA;
+    --border: #DDD8CC;
+    --error: #B3261E;
+    --radius: 14px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    height: 100%;
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+
+  .login-card {
+    width: 100%;
+    max-width: 420px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 40px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+
+  .badge {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--green-dark);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 10px;
+  }
+
+  .heading {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+
+  .subtitle {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-bottom: 28px;
+    line-height: 1.5;
+  }
+
+  .field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 18px;
+  }
+
+  .field-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  input {
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    padding: 13px 16px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    background: var(--bg);
+    color: var(--text-primary);
+    outline: none;
+    width: 100%;
+    transition: border-color 0.2s ease;
+  }
+
+  input:focus {
+    border-color: var(--green);
+  }
+
+  input.invalid {
+    border-color: var(--error);
+  }
+
+  input.otp-input {
+    letter-spacing: 6px;
+    font-size: 20px;
+    text-align: center;
+    font-weight: 600;
+  }
+
+  .error-text {
+    font-size: 13px;
+    color: var(--error);
+    min-height: 16px;
+  }
+
+  .status-text {
+    font-size: 13px;
+    color: var(--green-dark);
+    min-height: 16px;
+  }
+
+  .btn {
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    padding: 14px 28px;
+    border-radius: 999px;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+    background: var(--green);
+    color: white;
+    transition: background 0.2s ease, opacity 0.2s ease;
+  }
+
+  .btn:hover {
+    background: var(--green-dark);
+  }
+
+  .btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .btn-text {
+    background: none;
+    color: var(--text-secondary);
+    width: auto;
+    padding: 10px 0;
+    margin-top: 6px;
+  }
+
+  .btn-text:hover {
+    color: var(--text-primary);
+    background: none;
+  }
+
+  .step {
+    display: none;
+  }
+
+  .step.visible {
+    display: block;
+  }
+</style>
+</head>
+<body>
+
+<div class="login-card">
+  <div class="badge">Green Recruiters</div>
+  <div class="heading">Administrator Login</div>
+
+  <!-- Step 1: Email -->
+  <div class="step visible" id="stepEmail">
+    <div class="subtitle">Enter your administrator email to receive a one-time login code.</div>
+
+    <div class="field-group">
+      <label class="field-label">Email Address</label>
+      <input type="email" id="emailInput" autocomplete="email" placeholder="you@company.com">
+      <div class="error-text" id="err-email"></div>
+    </div>
+
+    <button class="btn" id="sendCodeBtn">Send Login Code</button>
+  </div>
+
+  <!-- Step 2: OTP -->
+  <div class="step" id="stepOtp">
+    <div class="subtitle">If that email is authorized, a 6-digit code has been sent. Enter it below.</div>
+
+    <div class="field-group">
+      <label class="field-label">Login Code</label>
+      <input type="text" id="otpInput" class="otp-input" maxlength="6" inputmode="numeric" placeholder="------">
+      <div class="error-text" id="err-otp"></div>
+      <div class="status-text" id="statusOtp"></div>
+    </div>
+
+    <button class="btn" id="verifyCodeBtn">Verify &amp; Continue</button>
+    <button class="btn btn-text" id="backToEmailBtn">Use a different email</button>
+  </div>
+</div>
+
+<script>
+(function () {
+  const API_BASE = '';
+  let pendingEmail = '';
+
+  const stepEmail = document.getElementById('stepEmail');
+  const stepOtp = document.getElementById('stepOtp');
+  const emailInput = document.getElementById('emailInput');
+  const otpInput = document.getElementById('otpInput');
+  const sendCodeBtn = document.getElementById('sendCodeBtn');
+  const verifyCodeBtn = document.getElementById('verifyCodeBtn');
+  const backToEmailBtn = document.getElementById('backToEmailBtn');
+
+  function showError(elId, message) {
+    document.getElementById(elId).textContent = message;
+  }
+
+  function isValidEmail(value) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+  }
+
+  function setLoading(button, isLoading, defaultText) {
+    button.disabled = isLoading;
+    button.textContent = isLoading ? 'Please wait...' : defaultText;
+  }
+
+  sendCodeBtn.addEventListener('click', async () => {
+    const email = emailInput.value.trim();
+
+    if (!isValidEmail(email)) {
+      showError('err-email', 'Enter a valid email address.');
+      return;
+    }
+    showError('err-email', '');
+
+    setLoading(sendCodeBtn, true, 'Send Login Code');
+
+    try {
+      await fetch(`${API_BASE}/api/cms/auth/request-otp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+
+      pendingEmail = email;
+      stepEmail.classList.remove('visible');
+      stepOtp.classList.add('visible');
+      otpInput.focus();
+    } catch (e) {
+      showError('err-email', 'Something went wrong. Please try again.');
+    } finally {
+      setLoading(sendCodeBtn, false, 'Send Login Code');
+    }
+  });
+
+  emailInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') sendCodeBtn.click();
+  });
+
+  verifyCodeBtn.addEventListener('click', async () => {
+    const otp = otpInput.value.trim();
+
+    if (otp.length !== 6) {
+      showError('err-otp', 'Enter the 6-digit code.');
+      return;
+    }
+    showError('err-otp', '');
+    document.getElementById('statusOtp').textContent = '';
+
+    setLoading(verifyCodeBtn, true, 'Verify & Continue');
+
+    try {
+      const res = await fetch(`${API_BASE}/api/cms/auth/verify-otp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: pendingEmail, otp }),
+      });
+
+      if (!res.ok) {
+        showError('err-otp', 'Invalid or expired code.');
+        setLoading(verifyCodeBtn, false, 'Verify & Continue');
+        return;
+      }
+
+      const data = await res.json();
+      sessionStorage.setItem('gr_session_token', data.token);
+      window.location.href = '/cms';
+    } catch (e) {
+      showError('err-otp', 'Something went wrong. Please try again.');
+      setLoading(verifyCodeBtn, false, 'Verify & Continue');
+    }
+  });
+
+  otpInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') verifyCodeBtn.click();
+  });
+
+  otpInput.addEventListener('input', () => {
+    otpInput.value = otpInput.value.replace(/\D/g, '');
+  });
+
+  backToEmailBtn.addEventListener('click', () => {
+    stepOtp.classList.remove('visible');
+    stepEmail.classList.add('visible');
+    otpInput.value = '';
+    showError('err-otp', '');
+    document.getElementById('statusOtp').textContent = '';
+  });
+})();
+</script>
+
+</body>
+</html>
